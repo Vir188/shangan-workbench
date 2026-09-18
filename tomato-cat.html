@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>番茄猫 · 专注小屋</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍅</text></svg>">
+<style>
+  :root{
+    --bg:#fff9f2; --card:#ffffff; --ink:#5d4a42; --ink-light:#a89283;
+    --tomato:#ff7b6b; --tomato-deep:#f0544f; --mint:#8fd6b4; --cream:#fff1e3;
+    --sun:#ffc95c; --pink:#ffb3c1;
+    --shadow:0 6px 18px rgba(240,84,79,.10);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, #ffe9d8 0%, transparent 34%),
+      radial-gradient(circle at 88% 92%, #e3f5ec 0%, transparent 30%),
+      var(--bg);
+    color:var(--ink); font-size:15px; min-height:100vh;
+    max-width:480px;margin:0 auto;padding:18px 14px 40px;
+  }
+  .head{display:flex;align-items:center;gap:8px;padding:4px 4px 14px;}
+  .head .t{font-size:21px;font-weight:800;letter-spacing:1px;}
+  .head .t small{font-size:11px;font-weight:400;color:var(--ink-light);display:block;letter-spacing:2px;margin-top:1px;}
+  .head .tom{margin-left:auto;font-size:26px;animation:wob 2.4s ease-in-out infinite;}
+  @keyframes wob{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+
+  .card{background:var(--card);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px;border:1px solid #fff;}
+
+  /* ---- cat stage ---- */
+  .cat-zone{display:flex;align-items:center;gap:6px;}
+  .cat-box{position:relative;flex:0 0 150px;}
+  .cat-box svg{width:100%;display:block;filter:drop-shadow(0 6px 0 rgba(240,84,79,.08));}
+  .cat-idle{animation:nap 3.2s ease-in-out infinite;}
+  .cat-work{animation:work .5s ease-in-out infinite;}
+  @keyframes nap{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+  @keyframes work{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-4px) rotate(1.5deg)}}
+  .zzz{position:absolute;top:4px;right:2px;font-size:15px;animation:zfloat 2.4s ease-in-out infinite;color:var(--ink-light);}
+  @keyframes zfloat{0%{opacity:0;transform:translateY(4px)}40%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+  .bubble{
+    flex:1;background:var(--cream);border-radius:16px 16px 16px 4px;padding:12px 14px;
+    font-size:13.5px;line-height:1.65;color:var(--ink);position:relative;
+  }
+  .lv-badge{
+    display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#ffd76e,#ffb54d);
+    color:#7a4b12;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;margin-bottom:6px;
+  }
+  .xpbar{height:12px;background:#f4e8dc;border-radius:8px;overflow:hidden;margin-top:8px;}
+  .xpbar i{display:block;height:100%;border-radius:8px;transition:width .6s;
+    background:linear-gradient(90deg,#ffd76e,#ffb54d);}
+  .xp-txt{font-size:11px;color:var(--ink-light);margin-top:5px;}
+
+  /* ---- timer ---- */
+  .timer-wrap{display:flex;justify-content:center;position:relative;}
+  .timer-wrap svg{width:250px;height:250px;}
+  .time-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .time{font-size:46px;font-weight:800;letter-spacing:2px;font-variant-numeric:tabular-nums;}
+  .state{font-size:12px;color:var(--ink-light);margin-top:2px;}
+  .ctrl{display:flex;justify-content:center;gap:12px;margin-top:14px;}
+  .btn{
+    border:none;border-radius:26px;padding:12px 30px;font-size:15px;font-weight:700;font-family:inherit;
+    cursor:pointer;color:#fff;background:linear-gradient(135deg,#ff8a7a,#f0544f);
+    box-shadow:0 5px 14px rgba(240,84,79,.35);transition:.15s;
+  }
+  .btn:active{transform:scale(.95);}
+  .btn.ghost{background:#fff;color:var(--tomato-deep);border:2px solid #ffd4cf;box-shadow:none;}
+  .btn.paused{background:linear-gradient(135deg,#8fd6b4,#5cb98f);box-shadow:0 5px 14px rgba(92,185,143,.35);}
+
+  /* ---- settings ---- */
+  .set-row{display:flex;align-items:center;gap:12px;}
+  input[type=range]{flex:1;accent-color:var(--tomato);height:6px;}
+  .dur-val{font-weight:800;font-size:17px;color:var(--tomato-deep);min-width:76px;text-align:right;font-variant-numeric:tabular-nums;}
+  .tip{font-size:11.5px;color:var(--ink-light);margin-top:8px;line-height:1.6;}
+
+  /* ---- stats ---- */
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+  .stat-box{background:var(--cream);border-radius:14px;padding:10px 4px;text-align:center;}
+  .stat-box .v{font-size:20px;font-weight:800;color:var(--tomato-deep);font-variant-numeric:tabular-nums;}
+  .stat-box .k{font-size:10.5px;color:var(--ink-light);margin-top:2px;}
+  .week{display:flex;align-items:flex-end;gap:8px;height:90px;padding:0 4px;}
+  .day{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;}
+  .day .bar{width:100%;max-width:30px;border-radius:6px 6px 3px 3px;min-height:4px;
+    background:linear-gradient(180deg,#ffb0a4,#f0544f);transition:height .5s;}
+  .day .bar.mint{background:linear-gradient(180deg,#b6e7cf,#6fc9a2);}
+  .day .num{font-size:9.5px;color:var(--ink-light);}
+  .day .lab{font-size:10px;color:var(--ink-light);}
+  .day.today .lab{color:var(--tomato-deep);font-weight:700;}
+
+  .stage-track{display:flex;justify-content:space-between;margin-top:10px;}
+  .stage-node{font-size:10px;color:var(--ink-light);text-align:center;flex:1;opacity:.5;transition:.3s;}
+  .stage-node .em{font-size:17px;display:block;filter:grayscale(80%);}
+  .stage-node.on{opacity:1;font-weight:700;color:var(--tomato-deep);}
+  .stage-node.on .em{filter:none;}
+
+  /* confetti */
+  .confetti{position:fixed;top:-20px;font-size:20px;z-index:99;pointer-events:none;animation:fall linear forwards;}
+  @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.6;}}
+
+  .foot{text-align:center;font-size:11px;color:var(--ink-light);margin-top:4px;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="t">🍅 番茄猫专注小屋<small>POMO-CATO FOCUS</small></div>
+  <div class="tom">🐱</div>
+</div>
+
+<div class="card">
+  <div class="cat-zone">
+    <div class="cat-box">
+      <div id="catSprite" class="cat-idle"></div>
+      <div class="zzz" id="zzz">💤</div>
+    </div>
+    <div class="bubble">
+      <span class="lv-badge">Lv.<span id="lvNum">1</span> · <span id="stageName">小奶猫</span></span>
+      <div id="say">呼噜呼噜… 今天也一起加油专注吧～</div>
+      <div class="xpbar"><i id="xpBar" style="width:0%"></i></div>
+      <div class="xp-txt" id="xpTxt">0 / 50 EXP · 完成番茄 +10 EXP</div>
+    </div>
+  </div>
+  <div class="stage-track" id="stageTrack"></div>
+</div>
+
+<div class="card">
+  <div class="timer-wrap">
+    <svg viewBox="0 0 250 250">
+      <defs>
+        <linearGradient id="ringG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#ffab98"/><stop offset="1" stop-color="#f0544f"/>
+        </linearGradient>
+      </defs>
+      <circle cx="125" cy="125" r="108" fill="#fff" stroke="#f8ece2" stroke-width="14"/>
+      <circle id="ring" cx="125" cy="125" r="108" fill="none" stroke="url(#ringG)" stroke-width="14"
+        stroke-linecap="round" transform="rotate(-90 125 125)"
+        stroke-dasharray="678.6" stroke-dashoffset="0"/>
+      <text x="125" y="30" text-anchor="middle" font-size="15">🍅</text>
+    </svg>
+    <div class="time-center">
+      <div class="time" id="timeTxt">25:00</div>
+      <div class="state" id="stateTxt">准备开跑 · 番茄猫在等你</div>
+    </div>
+  </div>
+  <div class="ctrl">
+    <button class="btn" id="mainBtn">▶ 开始专注</button>
+    <button class="btn ghost" id="resetBtn">↺ 重置</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="set-row">
+    <span style="font-size:18px;">⏱️</span>
+    <input type="range" id="durRange" min="25" max="120" step="5" value="25">
+    <span class="dur-val" id="durVal">25 分钟</span>
+  </div>
+  <div class="tip">工作时长可在 25–120 分钟之间调整（5 分钟一档），每完成一个番茄 +10 EXP。专注进行中无法修改，休息片刻再调整吧～</div>
+</div>
+
+<div class="card">
+  <div class="stat-row">
+    <div class="stat-box"><div class="v" id="stMin">0</div><div class="k">今日专注(分)</div></div>
+    <div class="stat-box"><div class="v" id="stCnt">0</div><div class="k">今日番茄(个)</div></div>
+    <div class="stat-box"><div class="v" id="stTotal">0</div><div class="k">累计番茄(个)</div></div>
+  </div>
+  <div class="week" id="weekChart"></div>
+  <div style="text-align:center;font-size:11px;color:var(--ink-light);margin-top:6px;">近 7 天专注时长（分钟）</div>
+</div>
+
+<div class="foot">数据自动保存在本机浏览器 · 陪伴你的每一颗番茄 🍅<br>练到 Lv.9 毕业那天，猫猫和你一起上岸 ✨</div>
+
+<script>
+/* ============ 数据 ============ */
+const KEY='tomato_cat_v1';
+let DB;
+try{DB=JSON.parse(localStorage.getItem(KEY))||{};}catch(e){DB={};}
+DB=Object.assign({xp:0,totalSessions:0,totalMinutes:0,history:{},duration:25},DB);
+function save(){localStorage.setItem(KEY,JSON.stringify(DB));}
+const pad=n=>String(n).padStart(2,'0');
+const dstr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const TODAY=dstr(new Date());
+const WEEK=['日','一','二','三','四','五','六'];
+
+/* ============ 像素猫 ============ */
+const STAGES=[
+  {name:'小奶猫', lv:1, body:'#ffe8d2'},
+  {name:'元气猫猫', lv:3, body:'#ffd9a0'},
+  {name:'沉稳猫咪', lv:6, body:'#dde4ee'},
+  {name:'上岸学者猫', lv:9, body:'#ffe2ae'}
+];
+const PAL={
+  o:'#7a5c49', e:'#40342c', p:'#ff9eb5', w:'#ffffff',
+  s:'#eda45f', r:'#ef7676', h:'#3f4a7a', y:'#ffcf5c', k:'#ffb3a6'
+};
+// 通用猫身（耳朵行会按有无帽子替换）
+const BODY=[
+  "___EARS___",
+  "___EARS___",
+  "___EARS___",
+  "___EARS___",
+  "..obbbbbbbbbbo..",
+  ".obbbbbbbbbbbbo.",
+  ".obbebbbbbbebbo.",
+  ".obbbwwppwwbbbo.",
+  ".obbbbbbbbbbbbo.",
+  "..obbbbbbbbbbo..",
+  "..orrrrrrrrrro..",
+  "..obbbbbbbbbbo..",
+  "..obbbbbbbbbbo..",
+  "..obbobbbbobbo..",
+  "...oo.oooo.oo...",
+  "................"
+];
+const EARS_NOHAT=["...oo......oo...","..obbo....obbo..","..obpbo..obpbo..","..obbbbbbbbbbo.."];
+const EARS_HAT=["......hhhh......","....hhhhhhhh....","..hhhhhhhhhhhh..","..hhhhhhhhhhhhy."];
+function catSVG(stageIdx){
+  const st=STAGES[stageIdx];
+  const rows=BODY.map(r=>r==="___EARS___"?"":r);
+  const ears=stageIdx===3?EARS_HAT:EARS_NOHAT;
+  for(let i=0;i<4;i++)rows[i]=ears[i];
+  // 幼猫没有围巾
+  if(stageIdx<2)rows[10]="..obbbbbbbbbbo..";
+  // 橘猫加条纹
+  if(stageIdx===1){rows[5]=".obbsbbsbbsbbbo.";rows[8]=".obsbbsbbsbbbb o".replace(' ','');}
+  // 腮红
+  rows[7]=rows[7].substring(0,3)+'k'+rows[7].substring(4,12)+'k'+rows[7].substring(13);
+  const colors={b:st.body,o:PAL.o,e:PAL.e,p:PAL.p,w:PAL.w,s:PAL.s,r:PAL.r,h:PAL.h,y:PAL.y,k:PAL.k};
+  let rects='';
+  rows.forEach((row,y)=>{
+    row=row.padEnd(16,'.').substring(0,16);
+    for(let x=0;x<16;x++){
+      const c=row[x];
+      if(c!=='.'&&colors[c])rects+=`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${colors[c]}"/>`;
+    }
+  });
+  return `<svg viewBox="0 0 16 16" shape-rendering="crispEdges">${rects}</svg>`;
+}
+
+/* ============ 等级 ============ */
+const LEVEL_XP=50;
+function levelOf(xp){return Math.floor(xp/LEVEL_XP)+1;}
+function stageOf(lv){let s=0;STAGES.forEach((st,i)=>{if(lv>=st.lv)s=i;});return s;}
+
+function renderCat(){
+  const lv=levelOf(DB.xp), si=stageOf(lv);
+  document.getElementById('catSprite').innerHTML=catSVG(si);
+  document.getElementById('lvNum').textContent=lv;
+  document.getElementById('stageName').textContent=STAGES[si].name;
+  const inLv=DB.xp%LEVEL_XP;
+  document.getElementById('xpBar').style.width=(inLv/LEVEL_XP*100)+'%';
+  document.getElementById('xpTxt').textContent=`${inLv} / ${LEVEL_XP} EXP · 完成番茄 +10 EXP`;
+  document.getElementById('stageTrack').innerHTML=STAGES.map((st,i)=>
+    `<div class="stage-node ${i<=si?'on':''}"><span class="em">${['🐱','🐈','😺','🎓'][i]}</span>Lv.${st.lv} ${st.name}</div>`).join('');
+}
+
+/* ============ 计时器 ============ */
+let remaining=DB.duration*60000, running=false, endAt=0, tick=null;
+const RING_LEN=678.6;
+function updateDisplay(){
+  const s=Math.max(0,Math.ceil(remaining/1000));
+  document.getElementById('timeTxt').textContent=pad(Math.floor(s/60))+':'+pad(s%60);
+  const p=remaining/(DB.duration*60000);
+  document.getElementById('ring').setAttribute('stroke-dashoffset',RING_LEN*(1-p));
+  document.title=running?`🍅 ${pad(Math.floor(s/60))}:${pad(s%60)} 番茄猫专注中`:'番茄猫 · 专注小屋';
+}
+function setRunning(r){
+  running=r;
+  document.getElementById('catSprite').className=r?'cat-work':'cat-idle';
+  document.getElementById('zzz').style.display=r?'none':'block';
+  document.getElementById('stateTxt').textContent=r?'专注中 · 猫猫陪你一起冲':'暂停中 · 休息一下下';
+  const b=document.getElementById('mainBtn');
+  b.textContent=r?'⏸ 暂停':'▶ 继续';
+  b.classList.toggle('paused',r);
+  document.getElementById('durRange').disabled=r;
+}
+function tickLoop(){
+  remaining=endAt-Date.now();
+  if(remaining<=0){remaining=0;updateDisplay();complete();return;}
+  updateDisplay();
+}
+document.getElementById('mainBtn').onclick=()=>{
+  if(running){ // 暂停
+    remaining=endAt-Date.now();clearInterval(tick);setRunning(false);say('idle');
+  }else{
+    endAt=Date.now()+remaining;tick=setInterval(tickLoop,250);setRunning(true);say('work');
+  }
+};
+document.getElementById('resetBtn').onclick=()=>{
+  clearInterval(tick);running=false;remaining=DB.duration*60000;
+  setRunning(false);updateDisplay();say('idle');
+};
+
+/* ============ 完成 ============ */
+function complete(){
+  clearInterval(tick);running=false;
+  const prevLv=levelOf(DB.xp);
+  DB.xp+=10;DB.totalSessions++;DB.totalMinutes+=DB.duration;
+  const h=DB.history[TODAY]||{m:0,s:0};h.m+=DB.duration;h.s++;DB.history[TODAY]=h;
+  save();
+  const newLv=levelOf(DB.xp), lvUp=newLv>prevLv, stUp=stageOf(newLv)>stageOf(prevLv);
+  setRunning(false);
+  remaining=DB.duration*60000;updateDisplay();
+  document.getElementById('durRange').disabled=false;
+  sound();confetti(lvUp?26:14);
+  if(stUp){say('evolve',STAGES[stageOf(newLv)].name);}
+  else if(lvUp){say('levelup',newLv);}
+  else say('done');
+  renderCat();renderStats();
+}
+
+/* ============ 时长设置 ============ */
+const dr=document.getElementById('durRange');
+dr.value=DB.duration;
+dr.addEventListener('input',()=>{
+  document.getElementById('durVal').textContent=dr.value+' 分钟';
+  if(!running){DB.duration=+dr.value;remaining=DB.duration*60000;save();updateDisplay();}
+});
+document.getElementById('durVal').textContent=DB.duration+' 分钟';
+
+/* ============ 统计 ============ */
+function renderStats(){
+  const h=DB.history[TODAY]||{m:0,s:0};
+  document.getElementById('stMin').textContent=h.m;
+  document.getElementById('stCnt').textContent=h.s;
+  document.getElementById('stTotal').textContent=DB.totalSessions;
+  const days=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d);}
+  const vals=days.map(d=>(DB.history[dstr(d)]||{m:0}).m);
+  const max=Math.max(...vals,10);
+  document.getElementById('weekChart').innerHTML=days.map((d,i)=>{
+    const v=vals[i],isT=dstr(d)===TODAY;
+    return `<div class="day ${isT?'today':''}">
+      <span class="num">${v>0?v:''}</span>
+      <div class="bar ${isT?'':'mint'}" style="height:${Math.max(4,v/max*62)}px"></div>
+      <span class="lab">${i===6?'今天':WEEK[d.getDay()]}</span></div>`;
+  }).join('');
+}
+
+/* ============ 台词 ============ */
+const LINES={
+  idle:['呼噜呼噜… 我在打盹，你什么时候开始呀？','肚子好饿… 专注一颗番茄就奖励小鱼干嘛？','窗外的麻雀真吵，还是学习有意思（傲娇）','摸摸头！准备好就开始吧～'],
+  work:['认真起来了！我也盯着时钟呢 ⏰','喵！这颗番茄我们一起跑完！','别想偷吃零食哦，我在看着你 👀','嗯嗯，就是现在，冲鸭！'],
+  done:['叮！番茄收获啦，喵呜～ 🍅','干得漂亮！又攒了 10 EXP！','今天也是努力的小猫咪呢 ✨','好耶！要不要再来一颗？'],
+  levelup:['叮咚——升级啦！现在是 Lv.{0}！','EXP 攒满，猫猫升级！Lv.{0} 达成 ✨'],
+  evolve:['哇！！进化成 {0} 了！！🎉 要一直一起努力哦']
+};
+function say(type,arg){
+  const arr=LINES[type]||LINES.idle;
+  let t=arr[Math.floor(Math.random()*arr.length)];
+  t=(arg!==undefined)?t.replace('{0}',arg):t;
+  document.getElementById('say').textContent=t;
+}
+
+/* ============ 音效 & 撒花 ============ */
+function sound(){
+  try{
+    const ac=new (window.AudioContext||window.webkitAudioContext)();
+    [[523,0],[659,.15],[784,.3],[1047,.45]].forEach(([f,t])=>{
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.type='sine';o.frequency.value=f;
+      g.gain.setValueAtTime(.001,ac.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(.25,ac.currentTime+t+.02);
+      g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+.5);
+      o.connect(g);g.connect(ac.destination);
+      o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.55);
+    });
+  }catch(e){}
+}
+function confetti(n){
+  const emo=['🍅','✨','🐱','⭐','🐟','💛'];
+  for(let i=0;i<n;i++){
+    const s=document.createElement('span');
+    s.className='confetti';
+    s.textContent=emo[Math.floor(Math.random()*emo.length)];
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(1.6+Math.random()*1.4)+'s';
+    s.style.animationDelay=Math.random()*.4+'s';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),3500);
+  }
+}
+
+/* ============ 启动 ============ */
+renderCat();renderStats();updateDisplay();
+</script>
+</body>
+</html>
